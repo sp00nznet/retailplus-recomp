@@ -1,0 +1,16 @@
+# The installer for this commit (recomp-launcher with launcher/launcher.json).
+# Private repo: run by hand only (REPO_RULES section 8).
+name: installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    uses: sp00nznet/recomp-launcher/.github/workflows/installer.yml@main
+    with:
+      name: RetailPlus-Recomp-Installer
+      platforms: windows

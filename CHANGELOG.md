@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- `CONTRIBUTING.md`, `CONTRIBUTORS.md`, `docs/building.md`, `docs/testing.md`,
+  a hand-run installer workflow, and a `setup.sh` that says Linux and macOS
+  aren't supported yet.
+
+### Changed
+- `NOTICE` is now `NOTICE.md`, saying what MIT covers and what it doesn't.
+- Setup clones pcrecomp's `pcrecomp-retailplus` branch, and stops with the
+  checkout command if `..\pcrecomp` is on another branch; the launcher uses
+  the same branch. The README is in the house order.
+
 ## [0.1.0] - 2026-11-12
 
 ### Added

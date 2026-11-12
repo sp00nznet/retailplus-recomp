@@ -1,167 +1,80 @@
-# Retail Plus Lite, recompiled
+# Retail Plus Lite — Static Recompilation
 
 Static recompilation of **Retail Plus Lite** (Retail Software, 2003), a
 point-of-sale and inventory program for small shops, from its shipping Win32
-executable to native C. No emulator, no wrapper DLLs.
+executable `PLUSLITE.EXE` to native C. It is pcrecomp's first **CA-Visual
+Objects** program: Retail Plus's own VO-compiled code is lifted to C and run on
+pcrecomp's `native32` host, while the Visual Objects runtime DLLs it ships
+(`CAVORT20`, `CAVO2GUI`, `CAVO2RDD`, ...) run as they are and call back into
+the lifted code. No emulator, no wrapper DLLs.
 
-It is pcrecomp's first **CA-Visual Objects** program: an xBase language whose
-compiler produces native x86 and whose runtime is a set of DLLs
-(`CAVORT20`, `CAVO2GUI`, `CAVO2RDD`, ...), with the data in dBase/FoxPro
-`.DBF` tables. It was picked as a Visual Basic test and turned out not to be
-one ([docs/bringup.md](docs/bringup.md)).
-
-Built on the [pcrecomp](https://github.com/sp00nznet/pcrecomp) toolchain and
-following its shared house style (layout, CLI, conformance harness), like the
-other [pcrecomp projects](https://github.com/sp00nznet/pcrecomp#the-projects-that-built-this).
-
-## What it is
-
-A static recompilation of `PLUSLITE.EXE` (PE stamp `0x3FEFC097`,
-2003-12-29). Retail Plus's own code, compiled by Visual Objects into the EXE,
-is lifted to C by pcrecomp, compiled with MSVC and run on pcrecomp's
-`native32` host. The Visual Objects runtime and the report DLLs that ship with
-it are loaded as they are and called through the host's bridge; they call
-back into the lifted code (window procedures, class methods, code blocks).
-
-## Status: v0.1.0, alpha. It adds a product, rings up a sale and exports, and its output matches the original
-
-| Stage | State |
-|---|---|
-| Version recompiled | Retail Plus Lite (`Rp_lite.exe`, Tucows 341566), shareware, run in its trial mode |
-| Installer | unpacked, never run: pcrecomp `tools/assets/extract_clickteam.py` (new) |
-| Function catalog (`disasm32 --tail-jumps`) | 40,826 functions, 95.8% of the code range, 9 minutes |
-| Lift (`run_lift.py`) | 41,580 functions (+754 outside the catalog), 0 errors, 32 minutes, plus 19 seeds found by runs and by a scan for VO prologues (`seeds/run_seeds.json`) |
-| Host (`build/retailplusrecomp.exe`, 32-bit, `native32`) | 4,816 imports bound, 0 unresolved; the VO runtime and report DLLs run natively with the guest's registers |
-| Conformance harness (`tools/pos_diff.py`) | runs the whole script on the original: add a product, ring up a sale, export the inventory. **The recomp runs the same script and matches: 11/11 IDENTICAL** (every DBF and the export) |
-
-Built and tested against pcrecomp branch `pcrecomp-retailplus` (on
-`pcrecomp-ingame`), which adds the Clickteam extractor and the catalog fixes
-this program needed.
-
-## Screenshots
-
-The inventory, running as recompiled code, after the harness's sale:
+Built on the [pcrecomp](https://github.com/sp00nznet/pcrecomp) toolchain, on
+its **`pcrecomp-retailplus`** branch until that is merged (it adds the
+Clickteam installer extractor and the catalog fixes this program needed).
 
 ![The inventory window, recompiled](docs/screenshots/inventory.png)
 
-## How the runtime is run
-
-The Visual Objects runtime is not called by the C ABI (every function's
-prologue calls `INCKidStackPtr` with `eax = esp` and `__chkstk`, helpers read
-the caller's frame through `ebp`, results come back in `eax:edx` and in the
-flags). So the host enters every DLL from the app folder with pcrecomp's
-`native32_add_guest_abi`: on the guest's stack with the guest's registers,
-the x87 left alone, the flags returned, and callbacks from it given the
-caller's registers. Its `GetModuleFileNameA(NULL)` and `GetModuleHandleA(NULL)`
-are pointed at the guest (`PLUSLITE.EXE` in the app folder), and its
-`LoadLibraryA` registers the database drivers it loads later. The whole story
-is in [docs/bringup.md](docs/bringup.md).
-
-## What is not in this repo
-
-Nothing of Retail Plus or of the Visual Objects runtime: no executable, DLL,
-database, report and **no generated source**. The recompiled C is produced on
-your machine from your own copy by `run_lift.py`, into `src/recomp/gen/`,
-which is gitignored.
-
 ## Getting Started
 
-You need **your own copy of Retail Plus Lite**: the `Rp_lite.exe` installer is
-on the Internet Archive in the Tucows collection (item
-`tucows_341566_Retail_Plus_Lite_POS_Software`). You do not have to install
-it: setup unpacks it.
+You need **your own copy**: the `Rp_lite.exe` shareware installer (Tucows
+341566; the Internet Archive has it as
+`tucows_341566_Retail_Plus_Lite_POS_Software`), or a folder holding
+`PLUSLITE.EXE`. Nothing of Retail Plus is in this repository or downloaded for
+you; the installer is unpacked, never run, and everything is built on your
+machine from your copy. Windows only for now (`setup.sh` says so and exits).
 
-### Quick start: Setup.cmd
+### The setup scripts
 
-1. Put this repository and the pcrecomp toolkit side by side (below).
+1. Download this repository (the green **Code** button, then **Download ZIP**)
+   and unzip it somewhere with 3 GB free.
 2. Double-click **`Setup.cmd`** and give it `Rp_lite.exe` when it asks
    (`Setup.cmd -GameDir C:\path\Rp_lite.exe` skips the question).
+3. Run it with the **`Retail Plus Lite`** shortcut in that folder.
 
-It checks for Python 3.10+, `pefile` and `capstone`, the pcrecomp toolkit and
-the Visual Studio 2022 C++ compiler, and asks before installing any of them.
-Then it unpacks the installer into `game\`, finds every function, recompiles
-it and builds `build\retailplusrecomp.exe`, and leaves a **`Retail Plus
-Lite`** shortcut. A rerun skips the finished steps; the details of every step
-are in `setup.log`.
+The script asks before installing anything (Python 3.10+, `pefile` and
+`capstone`, git, the Visual Studio 2022 C++ Build Tools), fetches pcrecomp's
+`pcrecomp-retailplus` branch beside this folder, then unpacks, catalogs, lifts
+and builds. The first run takes about 80 minutes (catalog 9, lift 32, build
+40); a rerun skips finished steps, and the details are in `setup.log`. Building
+by hand is in **[docs/building.md](docs/building.md)**.
 
-### Step by step
+## Status
 
-Prerequisites: Windows 10/11, **Python 3.10+**, **git**, **Visual Studio
-2022** (or its Build Tools) with *Desktop development with C++*, and pcrecomp
-beside this repository, on the `pcrecomp-retailplus` branch until it is
-merged:
+**v0.1.0, alpha.** The conformance harness (`tools/pos_diff.py`) runs one
+script on the original and on the recomp: add a product, ring up a sale,
+export the inventory. **11 of 11 outputs are identical** (every DBF table it
+touches and the CSV export). That script is all the harness proves; the rest
+of the program (clients, receiving, reports, backup) is untested.
 
-```
-some-folder\
-  pcrecomp\                     <- git clone https://github.com/sp00nznet/pcrecomp
-  retailplus\                   <- this repository
-```
-
-1. `py -3 -m pip install --user pefile capstone`
-2. Unpack the installer into `game\` and copy the EXE into `work\`:
-   ```
-   py -3 -I ..\pcrecomp\tools\assets\extract_clickteam.py Rp_lite.exe game
-   mkdir work & copy game\PLUSLITE.EXE work\
-   ```
-   Expected: `89 files`.
-3. The function catalog (about 9 minutes, under 2 GB):
-   ```
-   py -3 ..\pcrecomp\tools\disasm\disasm32.py work\PLUSLITE.EXE -o work\functions.json --tail-jumps
-   ```
-   Expected, at the end: `[*] Functions: 40826  (thunks=5236, leaves=6882)`.
-   Without `--tail-jumps` it runs for hours (docs/bringup.md, section 3).
-4. Recompile to C: `py -3 run_lift.py`. (about 30 minutes)
-   Expected, at the end: about `lifted 41606`, `errors 0`
-   (give or take: the seeds lift in the same pass).
-5. Build: `build.cmd` (about 40 minutes the first time: 700 MB of C).
-6. Check it without opening a window: `build\retailplusrecomp.exe`.
-7. Run it: `build\retailplusrecomp.exe --run`.
-
-## Usage
-
-```
-build\retailplusrecomp.exe --run                  # run it
-build\retailplusrecomp.exe --run --watchdog 60    # stop after 60 s, saying where it was
-build\retailplusrecomp.exe --run --native-trace   # one line per call out of the lifted code
-py -3 tools\pos_diff.py                           # the conformance check, below
-```
-
-| Flag | |
+| | |
 |---|---|
-| `--run` | enter the program (without it: map, bind and stop, no window) |
-| `--game DIR` | the program folder (default `game`) |
-| `--args "..."` | the guest's command line |
-| `--watchdog S` | stop after S seconds and say where it was |
-| `--native-trace`, `--callbacks` | one line per call out of the lifted code, or back into it |
+| Functions found (`disasm32 --tail-jumps`) | 40,826 (95.8% of the code) |
+| Lifted to C | 41,580 + 19 seeds, 0 errors |
+| Imports bound | 4,816, 0 unresolved |
+| Harness (`tools/pos_diff.py`) | 11 of 11 identical |
 
-### The conformance check
+[docs/bringup.md](docs/bringup.md) is the log of each wall and its fix, and
+[ROADMAP.md](ROADMAP.md) what comes next.
 
-```
-py -3 tools\pos_diff.py              # both, compared
-py -3 tools\pos_diff.py --only orig  # just the original
-```
+## Screenshots
 
-Each program gets a fresh copy of `game\` in a temporary folder and runs on a
-hidden desktop of its own (nothing shows on your screens; it works over RDP).
-The same script drives both through window messages:
+The inventory, running as recompiled code, after the harness's sale (above).
+More shots come with the headless mode on the ROADMAP.
 
-1. **Add a product.** File > Inventory > Open, Edit > Add Item: a STANDARD
-   item `RPX1`, "RECOMP TEST WIDGET", price 12.34, 5 in stock, cost 6.00.
-2. **Ring up a sale.** File > Point Of Sale, Start, scan `RPX1`, quantity 2,
-   Total, Save (cash, no receipt printer).
-3. **Export.** Inventory > Tools > Export Inventory to `EXPORT.CSV`.
+## Documentation
 
-Then it compares every DBF's rows (the inventory, the sales log `SALES001`,
-the day's totals `TOTAL001`, the transaction log, setup, numbering, staff)
-and the export, and prints `IDENTICAL` or `DIFFERENT` for each. The time of
-day of the sale is masked; both runs are on the same day. Without
-`game\PLUSLITE.EXE` it prints `skipped` and exits 0.
+- [docs/building.md](docs/building.md): building by hand, step by step, and the host's flags
+- [docs/testing.md](docs/testing.md): the conformance harness
+- [docs/bringup.md](docs/bringup.md): every wall so far and its fix, and how the VO runtime is called
+- [ROADMAP.md](ROADMAP.md), [CHANGELOG.md](CHANGELOG.md), [CONTRIBUTING.md](CONTRIBUTING.md)
 
-On the original the export shows the script worked: the new item with 3 left
-in stock, 2 sold, 24.68 taken.
+## Contributors
+
+See **[CONTRIBUTORS.md](CONTRIBUTORS.md)** for who did what.
 
 ## License
 
-MIT, for the code in this repository ([LICENSE](LICENSE); attribution in
-[NOTICE](NOTICE)). Retail Plus Lite is (c) Retail Software and the Visual
-Objects runtime (c) Computer Associates; none of either is here.
+MIT for this repository's own code ([LICENSE](LICENSE)). Retail Plus Lite is
+© Retail Software and the Visual Objects runtime © Computer Associates; none of
+their files, and nothing generated from them, is in this repository
+([NOTICE.md](NOTICE.md)).

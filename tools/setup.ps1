@@ -11,7 +11,8 @@
 #   -GameDir <Rp_lite.exe, or a folder holding PLUSLITE.EXE>   skip the question
 #   -Yes                                                      answer yes to every install question
 #
-# The toolkit is ..\pcrecomp (PCRECOMP overrides it). Under recomp-launcher
+# The toolkit is ..\pcrecomp (PCRECOMP overrides it), on its pcrecomp-retailplus
+# branch until that is merged: main lacks the Clickteam extractor. Under recomp-launcher
 # (RECOMP_LAUNCHER=1) it never waits for Enter, and exit code 0 means the
 # shortcut is there. Nothing of Retail Plus is ever downloaded.
 param([switch]$Force, [switch]$Yes, [Alias('Game')][string]$GameDir = "")
@@ -23,6 +24,7 @@ $Toolkit = $env:PCRECOMP
 if (-not $Toolkit) {
   $Toolkit = Join-Path (Split-Path -Parent $Root) 'pcrecomp'
 }
+$Branch = 'pcrecomp-retailplus'   # the pcrecomp branch this project needs
 $env:PCRECOMP = $Toolkit   # the Python steps read it too
 $Log = Join-Path $Root 'setup.log'
 Set-Location $Root
@@ -109,9 +111,12 @@ if (-not (Test-Path (Join-Path $Toolkit 'tools\lift\lift32.py'))) {
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) { Fail "Git did not install. Install Git for Windows yourself." }
   }
   if (-not (Ask "  Download it now (git, about 20 MB)?")) { Fail "pcrecomp is required at $Toolkit." }
-  Run "Cloning pcrecomp" @('git', 'clone', '--depth', '1', 'https://github.com/sp00nznet/pcrecomp', $Toolkit)
+  Run "Cloning pcrecomp" @('git', 'clone', '--depth', '1', '-b', $Branch, 'https://github.com/sp00nznet/pcrecomp', $Toolkit)
 }
-Say "  pcrecomp: $Toolkit"
+if (-not (Test-Path (Join-Path $Toolkit 'tools\assets\extract_clickteam.py'))) {
+  Fail "pcrecomp at $Toolkit is not on the $Branch branch (git -C `"$Toolkit`" checkout $Branch)."
+}
+Say "  pcrecomp: $Toolkit ($Branch)"
 
 # Visual Studio 2022 or its Build Tools, with the C++ x86 compiler; CMake and
 # Ninja ship inside that workload, so build.cmd needs nothing else.
