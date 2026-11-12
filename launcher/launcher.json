@@ -1,0 +1,17 @@
+{
+  "title": "Retail Plus Lite",
+  "repo": "sp00nznet/retailplus-recomp",
+  "accent": "#2f6f9f",
+  "note": {
+    "windows": "The build takes about 30 minutes and 1 GB (the catalog of PLUSLITE.EXE is the slow step). Python and the Visual Studio Build Tools are installed if they are missing; the Build Tools are about 3 GB and add 15 to 30 minutes, and Windows asks for permission once. Point it at your Rp_lite.exe installer (it is unpacked, never run) or a folder holding PLUSLITE.EXE."
+  },
+  "game": {
+    "name": "Retail Plus Lite (2003)",
+    "files": ["Rp_lite.exe|Retail Plus Lite/Rp_lite.exe"]
+  },
+  "sources": [{ "repo": "sp00nznet/pcrecomp", "ref": "main", "dir": "pcrecomp" }],
+  "setup": {
+    "windows": ["cmd", "/c", "Setup.cmd", "-Yes", "-GameDir", "{game}"]
+  },
+  "play": "Retail Plus Lite.lnk"
+}
