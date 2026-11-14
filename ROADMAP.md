@@ -3,7 +3,7 @@
 ## Done
 - `PLUSLITE.EXE` lifted (0 errors), the VO runtime run natively, and the
   harness's add-product, sale and export identical to the original, 11 of 11.
-- Setup.cmd from a fresh clone, on pcrecomp's `pcrecomp-retailplus` branch.
+- Setup.cmd from a fresh clone, on pcrecomp `main`.
 
 ## Next
 - More of the program under the harness: clients, receive stock, the
@@ -23,7 +23,6 @@
 - Headless mode in the host (`native32_headless`), so the harness and
   screenshots can run on the netlab test VMs.
 - Setup.cmd and the launcher on a clean VM.
-- The toolkit branch merged into pcrecomp `main`, and setup moved to it.
 - Linux or macOS through Wine (`setup.sh` exits for now).
 
 ## Out of scope

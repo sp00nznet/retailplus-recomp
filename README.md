@@ -9,8 +9,8 @@ pcrecomp's `native32` host, while the Visual Objects runtime DLLs it ships
 the lifted code. No emulator, no wrapper DLLs.
 
 Built on the [pcrecomp](https://github.com/sp00nznet/pcrecomp) toolchain, on
-its **`pcrecomp-retailplus`** branch until that is merged (it adds the
-Clickteam installer extractor and the catalog fixes this program needed).
+its `main` branch (which has the Clickteam installer extractor and the catalog
+fixes this program needed).
 
 ![The inventory window, recompiled](docs/screenshots/inventory.png)
 
@@ -32,8 +32,8 @@ machine from your copy. Windows only for now (`setup.sh` says so and exits).
 3. Run it with the **`Retail Plus Lite`** shortcut in that folder.
 
 The script asks before installing anything (Python 3.10+, `pefile` and
-`capstone`, git, the Visual Studio 2022 C++ Build Tools), fetches pcrecomp's
-`pcrecomp-retailplus` branch beside this folder, then unpacks, catalogs, lifts
+`capstone`, git, the Visual Studio 2022 C++ Build Tools), fetches pcrecomp
+`main` beside this folder, then unpacks, catalogs, lifts
 and builds. The first run takes about 80 minutes (catalog 9, lift 32, build
 40); a rerun skips finished steps, and the details are in `setup.log`. Building
 by hand is in **[docs/building.md](docs/building.md)**.

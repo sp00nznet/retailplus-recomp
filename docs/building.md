@@ -6,12 +6,11 @@ The by-hand route; `Setup.cmd` runs exactly these steps.
 
 Prerequisites: Windows 10/11, **Python 3.10+**, **git**, **Visual Studio
 2022** (or its Build Tools) with *Desktop development with C++*, and pcrecomp
-beside this repository, on the `pcrecomp-retailplus` branch until it is
-merged:
+beside this repository, on `main`:
 
 ```
 some-folder\
-  pcrecomp\                     <- git clone -b pcrecomp-retailplus https://github.com/sp00nznet/pcrecomp
+  pcrecomp\                     <- git clone https://github.com/sp00nznet/pcrecomp
   retailplus\                   <- this repository
 ```
 
@@ -55,4 +54,4 @@ py -3 tools\pos_diff.py                           # the conformance check, below
 
 ## Setup.cmd
 
-`tools/setup.ps1` does steps 1 to 5 and makes the shortcut. `-GameDir` takes the installer or a folder; `-Yes` answers every question; `-Force` redoes finished steps; `PCRECOMP` points at another toolkit checkout, which must be on `pcrecomp-retailplus`. Linux and macOS: not yet (`setup.sh` exits with that message).
+`tools/setup.ps1` does steps 1 to 5 and makes the shortcut. `-GameDir` takes the installer or a folder; `-Yes` answers every question; `-Force` redoes finished steps; `PCRECOMP` points at another toolkit checkout, which must be on `main`. Linux and macOS: not yet (`setup.sh` exits with that message).

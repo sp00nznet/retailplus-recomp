@@ -25,8 +25,8 @@ called through the bridge and calling back into lifted code.
 payload appended behind a `wwgT)H` signature, as blocks (`u16 id, u16 flags,
 u32 size`). Block `0x143A` is the file list (zlib) and `0x7F7F` the file data,
 each file as `u32 size, u8 method (1 zlib, 2 bzip2), data`. pcrecomp had no
-extractor for it; `tools/assets/extract_clickteam.py` is new on the
-`pcrecomp-retailplus` branch. 89 files come out.
+extractor for it; `tools/assets/extract_clickteam.py` is new in pcrecomp
+(now on `main`). 89 files come out.
 
 ## 3. The catalog
 
